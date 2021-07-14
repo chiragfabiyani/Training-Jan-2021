@@ -24,19 +24,22 @@ class Ad{
     }
 
     static allData(req,res,next){
-        Ads.find().populate({path:'Services',populate:{path:'Services'}}).populate('User').select().exec((err,result)=>{
+        let page=parseInt(req.body.page)*8;
+        Ads.find().populate({path:'Services',populate:{path:'Services'}}).populate('User').select().sort({_id:-1}).limit(page).exec((err,result)=>{
             res.send(result)
         });
     }
 
     static categoryData(req,res,next){
-        Ads.find({Category: (req.body.data)}).populate({path:'Services',populate:{path:'Services'}}).populate('User').select().exec((err,result)=>{
+        let page=parseInt(req.body.page)*2;
+        Ads.find(req.body.data).populate({path:'Services',populate:{path:'Services'}}).populate('User').select().sort({_id:-1}).limit(page).exec((err,result)=>{
             res.send(result)
         });
     }
 
     static searchedData(req,res,next){
-        Ads.find({Category: { $regex: req.body.data }}).populate({path:'Services',populate:{path:'Services'}}).populate('User').select().exec((err,result)=>{
+        let page=parseInt(req.body.page)*2;
+        Ads.find({Category: { $regex: req.body.data }}).populate({path:'Services',populate:{path:'Services'}}).populate('User').select().sort({_id:-1}).limit(page).exec((err,result)=>{
             res.send(result)
         });
     }
@@ -48,7 +51,8 @@ class Ad{
     }
 
     static userData(req,res,next){
-        Ads.find({User:{_id:(req.params.id)}}).populate({path:'Services',populate:{path:'Services'}}).populate('User').select().exec((err,result)=>{
+        let page=parseInt(req.body.page)*8;
+        Ads.find({User:{_id:(req.params.id)}}).populate({path:'Services',populate:{path:'Services'}}).populate('User').select().sort({_id:-1}).limit(page).exec((err,result)=>{
             res.send(result)
         });
     }
@@ -69,7 +73,7 @@ class Ad{
 
 router.post('/insert',Security,express.json(),Ad.addData);
 
-router.get('/all',Ad.allData);
+router.post('/all',express.json(),Ad.allData);
 
 router.post('/find',express.json(),Ad.categoryData);
 
@@ -77,7 +81,7 @@ router.post('/search',express.json(),Ad.searchedData);
 
 router.get('/:id',express.json(),Ad.idData);
 
-router.get('/user/:id',express.json(),Ad.userData);
+router.post('/user/:id',express.json(),Ad.userData);
 
 router.delete('/:id',Security,Ad.idDataDelete);
 
